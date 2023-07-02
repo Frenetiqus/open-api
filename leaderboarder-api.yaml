@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Leaderboarder API
+  version: 1.0.0
+
+paths:
+  /ladder:
+    get:
+      summary: Retrieve the leaderboard for a specific season
+      parameters:
+        - in: query
+          name: season
+          schema:
+            type: string
+          description: The season for which the leaderboard should be retrieved. Example value: season-1.
+          required: true
+      responses:
+        200:
+          description: A list of users and their ranking for the specified season
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Leaderboard'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+components:
+  schemas:
+    Leaderboard:
+      type: array
+      items:
+        type: object
+        required:
+          - userId
+          - username
+          - season
+          - totalPoints
+          - rank
+        properties:
+          userId:
+            type: string
+          username:
+            type: string
+          season:
+            type: string
+          totalPoints:
+            type: integer
+          rank:
+            type: integer

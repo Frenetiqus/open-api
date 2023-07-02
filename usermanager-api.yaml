@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: User Manager API
+  version: 1.0.0
+
+paths:
+  /users:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserConfiguration'
+      responses:
+        201:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedUserConfiguration'
+          headers:
+            Location:
+              description: 'Contains the URI of the newly created resource'
+              required: true
+              schema:
+                type: string
+                example: usermanager.net/users/{user_id}
+            Authorization:
+              schema:
+                type: string
+                example: Bearer 786598273423iuy4g
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        409:
+          description: Conflict (e.g., user already exists)
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+    get:
+      summary: Retrieve a list of all users
+      responses:
+        200:
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserConfiguration'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+  /users/{user_id}:
+    get:
+      summary: Retrieve user by ID
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserConfiguration'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+    delete:
+      summary: Delete a user by ID
+      parameters:
+        - in: path
+          name: user_id
+          schema:
+            type: string
+          required: true
+      responses:
+        204:
+          description: User successfully deleted
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+      
+
+
+components:
+  schemas:
+    UserConfiguration:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+          format: email
+    CreatedUserConfiguration:
+      allOf:
+        - $ref: '#/components/schemas/UserConfiguration'
+        - type: object
+          properties:
+            userId:
+              type: string

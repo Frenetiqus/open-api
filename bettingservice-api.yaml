@@ -1,0 +1,202 @@
+openapi: 3.0.3
+info:
+  title: Betting Service API
+  version: 1.0.0
+
+paths:
+  /bets:
+    post:
+      summary: Place a bet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BetConfiguration'
+      responses:
+        201:
+          description: Bet placed successfully
+          headers:
+            Location:
+              description: 'Contains the URI of the newly created resource'
+              required: true
+              schema:
+                type: string
+                example: bettingservice.net/bets/{bet_id}
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+    get:
+      summary: Retrieve a list of all bets
+      responses:
+        200:
+          description: List of bets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BetConfiguration'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+  /bets/{bet_id}:
+    get:
+      summary: Retrieve bet by ID
+      parameters:
+        - in: path
+          name: bet_id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Bet data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BetConfiguration'
+
+    delete:
+      summary: Delete a bet by ID
+      parameters:
+        - in: path
+          name: bet_id
+          schema:
+            type: string
+          required: true
+      responses:
+        204:
+          description: Bet successfully deleted
+        404:
+          description: Bet not found
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: 'commonData.yaml#/components/Error'
+
+ /games:
+  get:
+    summary: Retrieve a list of all games or filter by query parameters
+    parameters:
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum: [upcoming, live, ended]
+      - in: query
+        name: outcome
+        schema:
+          type: string
+          enum: [home, away, draw]
+      - in: query
+        name: teamHome
+        schema:
+          type: string
+      - in: query
+        name: teamAway
+        schema:
+          type: string
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: teamName
+        schema:
+          type: string
+    responses:
+      200:
+        description: List of games
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Game'
+
+  /games/{gameId}:
+    get:
+      summary: Retrieve a game by ID
+      parameters:
+        - in: path
+          name: gameId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Game data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+
+
+
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        gameId:
+          type: string
+        teamHome:
+          type: string
+        teamAway:
+          type: string
+        date:
+          type: string
+          format: date-time
+        outcome:
+          anyOf:
+            - type: string
+              enum: [HOME, AWAY, DRAW]
+            - type: 'null'
+
+    BetConfiguration:
+      type: object
+      properties:
+        userId:
+          type: string
+        gameId:
+          type: string
+        betAmount:
+          type: number
+        predictedOutcome:
+          type: object
+          properties:
+            result:
+              type: string
